@@ -11,19 +11,30 @@
 #include "drivers/digital_humidity_temperature_sensor.hpp"
 #include "drivers/four_digit_display.hpp"
 #include "sys/task_scheduler.hpp"
+#include "drivers/hc_s501.hpp"
+#include "drivers/led.hpp"
+#include "drivers/eight_dot_matrix.hpp"
 
-
-
+void checkSensor();
 void redraw();
-void computeMetrics();
+
+const uint8_t row[8] = {
+  45, 35, 44, 39, 30, 42, 32, 38
+};
+
+// 2-dimensional array of column pin numbers:
+const uint8_t col[8] = {
+  37, 34, 36, 43, 40, 41, 33, 31
+};
 
 Scheduler runner;
-four_digit_display fdp(5,4,3,2,26,24,27,23,31,22,29,25);
-digital_humidity_temperature_sensor dhts(7);
+Task task(5,TASK_FOREVER,&redraw,&runner,true);
+Task taskCheck(100,TASK_FOREVER,&checkSensor,&runner,true);
 
+hc_s501 motionSensor(7);
+eight_dot_matrix matrix(col,row);
+led blinkingLed(8);
 
-Task displayTask(5, TASK_FOREVER, &redraw,&runner,true);
-Task computeMetricsTask(3000, TASK_FOREVER, &computeMetrics,&runner,true);
 
 
 //Do not add code below this line
