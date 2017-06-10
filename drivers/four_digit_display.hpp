@@ -12,7 +12,7 @@
 
 class four_digit_display : Task {
 private:
-	uint8_t digitSegmentMask[4];
+	uint8_t digitSegmentMask[4] = {0,0,0,0};
 	uint8_t digit0;
 	uint8_t digit1;
 	uint8_t digit2;
@@ -25,12 +25,14 @@ private:
 	uint8_t segmentF;
 	uint8_t segmentG;
 	uint8_t segmentDot;
+	uint8_t lastDrawnDigit = 0;
 
 	void display_digit(uint8_t digit,uint8_t segmentMask);
 public:
 	four_digit_display(uint8_t digit0,uint8_t digit1,uint8_t digit2,uint8_t digit3,uint8_t segmentA,uint8_t segmentB,uint8_t segmentC,uint8_t segmentD,uint8_t segmentE,uint8_t segmentF,uint8_t segmentG, uint8_t segmentDot);
 	void set(uint8_t digit,int8_t value,uint8_t dot);
 	void set_number(int16_t number);
+	void set_number(double number,uint8_t precission);
 	void redraw();
 };
 

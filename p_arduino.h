@@ -7,19 +7,23 @@
 #ifndef _p_arduino_H_
 #define _p_arduino_H_
 #include "Arduino.h"
+
+#include "drivers/digital_humidity_temperature_sensor.hpp"
 #include "drivers/four_digit_display.hpp"
 #include "sys/task_scheduler.hpp"
-//add your includes for the project p_arduino here
+
+
+
+void redraw();
+void computeMetrics();
 
 Scheduler runner;
 four_digit_display fdp(5,4,3,2,26,24,27,23,31,22,29,25);
-
-//end of add your includes here
-
-
-//add your function definitions for the project p_arduino here
+digital_humidity_temperature_sensor dhts(7);
 
 
+Task displayTask(5, TASK_FOREVER, &redraw,&runner,true);
+Task computeMetricsTask(3000, TASK_FOREVER, &computeMetrics,&runner,true);
 
 
 //Do not add code below this line

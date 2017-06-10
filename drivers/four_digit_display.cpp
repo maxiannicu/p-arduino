@@ -7,7 +7,8 @@
 
 #include "four_digit_display.hpp"
 #include "Arduino.h"
-
+#include "string.h"
+#include <math.h>
 
 four_digit_display::four_digit_display(uint8_t digit0,uint8_t digit1,uint8_t digit2,uint8_t digit3,uint8_t segmentA,uint8_t segmentB,uint8_t segmentC,uint8_t segmentD,uint8_t segmentE,uint8_t segmentF,uint8_t segmentG, uint8_t segmentDot){
 	this->digit0 = digit0;
@@ -105,7 +106,7 @@ void four_digit_display::set_number(int16_t number){
 	if(number > -1000 && number < 10000){
 		uint8_t minusSign = 0;
 		for(uint8_t i = 0; i < 4;i++){
-			this->display_digit(i,0);
+			this->digitSegmentMask[i] = 0;
 		}
 
 		if(number < 0) {
@@ -127,9 +128,35 @@ void four_digit_display::set_number(int16_t number){
 	}
 }
 
-void four_digit_display::redraw(){
-	for(uint8_t i = 0; i < 4;i++){
-		this->display_digit(i, digitSegmentMask[i]);
-		delay(5);
+void four_digit_display::set_number(double number,uint8_t precission){
+	if(precission >= 0 && precission < 4){
+		char chars[20] = "23.0";
+		char format[10];
+		sprintf(format, "%%.%df",precission);
+		dtostrf(number, 1, precission, chars);
+		uint8_t len = strlen(chars);
+		uint8_t digit = 0;
+		uint8_t drawDot = 0;
+		for(int8_t i = len-1; i >= 0;i--){
+			if(chars[i] == '.'){
+				drawDot = 1;
+				continue;
+			}
+			this->set(digit++,chars[i] - '0' ,drawDot);
+			if(digit > 3)
+				break;
+			drawDot = 0;
+		}
+
+		for(; digit < 4;digit++){
+			this->digitSegmentMask[digit] = 0;
+		}
 	}
+}
+
+void four_digit_display::redraw(){
+	this->display_digit(lastDrawnDigit, digitSegmentMask[lastDrawnDigit]);
+	lastDrawnDigit++;
+	if(lastDrawnDigit > 3)
+		lastDrawnDigit = 0;
 }
